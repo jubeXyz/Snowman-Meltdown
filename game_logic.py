@@ -1,4 +1,3 @@
-
 import random
 from ascii_art import STAGES
 
@@ -12,6 +11,7 @@ def get_random_word():
 
 def display_game_state(mistakes, secret_word, guessed_letters):
     """Displays the snowman and the current word."""
+    print("\n" + "=" * 30)
     print(STAGES[mistakes])
 
     display_word = ""
@@ -24,48 +24,61 @@ def display_game_state(mistakes, secret_word, guessed_letters):
 
     print("Word:", display_word)
     print(f"Mistakes: {mistakes}/{len(STAGES) - 1}")
-    print()
+    print("=" * 30 + "\n")
 
 
 def play_game():
-    secret_word = get_random_word()
-    guessed_letters = []
-    mistakes = 0
-    max_mistakes = len(STAGES) - 1
-
     print("Welcome to Snowman Meltdown!")
 
-    while mistakes < max_mistakes:
+    while True:
+        secret_word = get_random_word()
+        guessed_letters = []
+        mistakes = 0
+        max_mistakes = len(STAGES) - 1
+
+        # Play one round.
+        while mistakes < max_mistakes:
+            display_game_state(mistakes, secret_word, guessed_letters)
+
+            # Check whether every letter has been guessed.
+            if all(letter in guessed_letters for letter in secret_word):
+                print("You saved the snowman! You win!")
+                break
+
+            guess = input("Guess a letter: ").strip().lower()
+
+            # Validate the input.
+            if len(guess) != 1 or not guess.isalpha():
+                print("Please enter a single letter.")
+                continue
+
+            if guess in guessed_letters:
+                print("You've already guessed that letter. Try another.")
+                continue
+
+            guessed_letters.append(guess)
+
+            if guess in secret_word:
+                print("Correct guess!")
+            else:
+                mistakes += 1
+                print("Wrong guess! The snowman is melting.")
+
+        # Display the final result.
         display_game_state(mistakes, secret_word, guessed_letters)
 
-        # Check whether every letter has been guessed.
         if all(letter in guessed_letters for letter in secret_word):
             print("You saved the snowman! You win!")
-            return
-
-        guess = input("Guess a letter: ").strip().lower()
-
-        # Validate the input.
-        if len(guess) != 1 or not guess.isalpha():
-            print("Please enter a single letter.")
-            continue
-
-        if guess in guessed_letters:
-            print("You've already guessed that letter. Try another.")
-            continue
-
-        guessed_letters.append(guess)
-
-        if guess in secret_word:
-            print("Correct guess!")
         else:
-            mistakes += 1
-            print("Wrong guess! The snowman is melting.")
+            print(f"Game over! The word was: {secret_word}")
+            print("The snowman melted. Better luck next time!")
 
-    # Show the final state after the last mistake.
-    display_game_state(mistakes, secret_word, guessed_letters)
-    print(f"Game over! The word was: {secret_word}")
-    print("The snowman melted. Better luck next time!")
+        # Ask whether the player wants another round.
+        replay = input("\nWould you like to play again? (y/n): ").strip().lower()
+
+        if replay != "y":
+            print("Thanks for playing Snowman Meltdown!")
+            break
 
 
 if __name__ == "__main__":
